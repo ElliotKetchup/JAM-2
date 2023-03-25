@@ -24,12 +24,8 @@ class Image():
     def draw(self):
         screen.blit(self.image, (self.rect.x, self.rect.y))
 
-def main_game(screen, running):
+def main_menu(screen, running):
     clock = pg.time.Clock()
-    ground_group = pg.sprite.Group()
-
-    # Set up the fonts
-
     font = pg.font.Font(None, 36)
 
     # Set up the buttons
@@ -54,14 +50,14 @@ def main_game(screen, running):
                     active_button = quit_button_rect
                 elif event.key == pg.K_RETURN:
                     if active_button == start_button_rect:
-                        print("Start")
+                        running = False
+                        main_game(screen, True)
                     elif active_button == quit_button_rect:
                         running = False
                         pg.quit()
                         quit()
 
         screen.fill((0, 0, 0))
-        ground_group.draw(screen)
         pg.display.update()
 
         # Draw the buttons
@@ -79,9 +75,28 @@ def main_game(screen, running):
             pg.draw.rect(screen, (0, 128, 0), quit_button_rect)
             screen.blit(quit_button_text, (quit_button_rect.x + 10, quit_button_rect.y + 10))
 
+def main_game(screen, running):
+    clock = pg.time.Clock()
+    ground_group = pg.sprite.Group()
+    ground_image = SpriteSheet('ressources/ramp.png').image_at((0, 0, 541, 895))
+    ground = Image(0, 0, ground_image)
+
+    while running:
+        clock.tick(60)
+        for event in pg.event.get():
+            if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
+                running = False
+                pg.quit()
+                quit()
+
+        screen.fill((255, 255, 255))
+        pg.display.update()
+
+        ground.draw()
+    
 pg.init()
 
 screen = pg.display.set_mode([WIDTH, HEIGHT])
 running = True
 pg.display.set_caption('Parraski')
-main_game(screen, running)
+main_menu(screen, running)
