@@ -26,14 +26,16 @@ class Image():
 
 def main_menu(screen, running):
     clock = pg.time.Clock()
-    font = pg.font.Font(None, 36)
+    font = pg.font.Font("font/Cube.ttf", 68)
 
     # Set up the buttons
 
-    start_button_rect = pg.Rect(50, 100, 150, 50)
+    start_button_rect = pg.Rect(100, 600, 815, 200)
     start_button_text = font.render("Start", True, (255, 255, 255))
-    quit_button_rect = pg.Rect(200, 100, 150, 50)
+    start_button_text_rect = start_button_text.get_rect(center=start_button_rect.center)
+    quit_button_rect = pg.Rect(100, 840, 665, 200)
     quit_button_text = font.render("Quit", True, (255, 255, 255))
+    quit_button_text_rect = quit_button_text.get_rect(center=quit_button_rect.center)
     active_button = start_button_rect
 
     while running:
@@ -58,22 +60,22 @@ def main_menu(screen, running):
                         quit()
 
         screen.fill((0, 0, 0))
-        pg.display.update()
 
         # Draw the buttons
 
         if active_button == start_button_rect:
-            pg.draw.rect(screen, (255, 0, 0), start_button_rect)
-            screen.blit(start_button_text, (start_button_rect.x + 10, start_button_rect.y + 10))
+            pg.draw.rect(screen, (128, 128, 128), start_button_rect)
+            screen.blit(start_button_text, start_button_text_rect)
         else:
-            pg.draw.rect(screen, (128, 0, 0), start_button_rect)
-            screen.blit(start_button_text, (start_button_rect.x + 10, start_button_rect.y + 10))
+            pg.draw.rect(screen, (0, 0, 0), start_button_rect)
+            screen.blit(start_button_text, start_button_text_rect)
         if active_button == quit_button_rect:
-            pg.draw.rect(screen, (0, 255, 0), quit_button_rect)
-            screen.blit(quit_button_text, (quit_button_rect.x + 10, quit_button_rect.y + 10))
+            pg.draw.rect(screen, (128, 128, 128), quit_button_rect)
+            screen.blit(quit_button_text, quit_button_text_rect)
         else:
-            pg.draw.rect(screen, (0, 128, 0), quit_button_rect)
-            screen.blit(quit_button_text, (quit_button_rect.x + 10, quit_button_rect.y + 10))
+            pg.draw.rect(screen, (0, 0, 0), quit_button_rect)
+            screen.blit(quit_button_text, quit_button_text_rect)
+        pg.display.update()
 
 def main_game(screen, running):
     clock = pg.time.Clock()
@@ -93,7 +95,7 @@ def main_game(screen, running):
         pg.display.update()
 
         ground.draw()
-    
+
 pg.init()
 
 screen = pg.display.set_mode([WIDTH, HEIGHT])
