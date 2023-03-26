@@ -5,6 +5,29 @@ from math import *
 WIDTH = 1920
 HEIGHT = 1080
 
+class Foreground(pg.sprite.Sprite):
+    def __init__(self, image, vitesse_scroll):
+        super(Foreground, self).__init__()
+        self.image = image.image
+        self.rect = image.rect
+        self.xrect = image.rect.x
+        self.yrect = image.rect.y
+        self.count = 0
+        self.vitesse_scroll = vitesse_scroll
+        self.image = pg.transform.scale(self.image, (WIDTH * 2, HEIGHT))
+    def update(self):
+        if int(self.count) <= -WIDTH:
+            self.count = 0
+        self.rect.topleft = (self.count, self.rect.y)
+        self.count -= self.vitesse_scroll
+
+    def move(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
+
+    def draw (self, screen):
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+
 class SpriteSheet(object):
     def __init__(self, fileName):
         self.sheet = pg.image.load(fileName).convert_alpha()
@@ -125,7 +148,21 @@ def main_menu(screen, running):
         pg.display.update()
 
 def main_game(screen, running):
+    timea = 0
+    timeb = 0
+    timec = 2000
     clock = pg.time.Clock()
+    back = Image(0, 0, pg.image.load('./ressources/background.png'))
+    back.image = pg.transform.scale(back.image, (WIDTH, HEIGHT))
+    forest1 = Image(0, -500, pg.image.load('./ressources/huge_foreste.png'))
+    moutain = Image(0, -500, pg.image.load('./ressources/moutain_pink.png'))
+    moutain2 = Image(1980, -500, pg.image.load('./ressources/moutain_pink.png'))
+    foreground_group = pg.sprite.Group()
+    forest_sprite = Foreground(forest1, 50)
+    moutain_sprite = Foreground(moutain, 50)
+    moutain_sprite2 = Foreground(moutain2, 50)
+    foreground_group.add(moutain_sprite)
+    foreground_group.add(moutain_sprite2)
     ramp_group = pg.sprite.Group()
     ramp_image = SpriteSheet('ressources/Untitled.png').image_at((0, 0, 2698, 587))
     new_ramp0 = Ramp(-200, -200, ramp_image)
@@ -136,6 +173,18 @@ def main_game(screen, running):
 
     while running:
         clock.tick(60)
+
+
+        timea = timea - (clock.get_time() * 1.5)
+        timeb = timeb - (clock.get_time() / 2)
+        timec = timec - (clock.get_time() / 3)
+        back.draw()
+        foreground_group.draw(screen)
+        forest_sprite.draw(screen)
+        forest_sprite.move(timea, -500)
+        moutain_sprite2.move((timec) , -500)
+        moutain_sprite.move((timeb), -500)
+
         for event in pg.event.get():
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                 running = False
@@ -144,7 +193,7 @@ def main_game(screen, running):
             elif event.type == pg.MOUSEBUTTONDOWN:
                 print(pg.mouse.get_pos())
 
-        screen.fill((255, 255, 255))
+
         for sprite in ramp_group:
             if sprite.rect.x < - 541 and sprite.rect.y < - 587:
                 sprite.delete()
@@ -163,6 +212,13 @@ def main_game(screen, running):
         # draw chronometer
         chronometer = font.render(f"{minutes:02}:{seconds:02}:{milliseconds:03}", True, (0, 0, 0))
         screen.blit(chronometer, (WIDTH - 190, 15))
+
+        if timea  <= -1500:
+            timea = 0
+        if timeb  <= -3700:
+            timeb = 700
+        if timec  <= -3700:
+            timec = 1500
 
         # update screen
         pg.display.update()
