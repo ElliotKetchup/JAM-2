@@ -61,7 +61,7 @@ class Obstacle(pg.sprite.Sprite):
     def move(self, x, y):
         self.rect.x += x
         self.rect.y += y
-    
+
     def delete(self):
         self.kill()
 
@@ -272,9 +272,10 @@ def main_game(screen, running):
 
         # calculate elapsed time
         milliseconds = pg.time.get_ticks() - ticks
-        seconds = int(milliseconds / 1000) % 60
-        minutes = int(seconds / 60)
+        seconds = milliseconds // 1000
+        minutes = seconds // 60
         milliseconds = milliseconds % 1000
+        seconds = seconds % 60
 
         # draw chronometer
         chronometer = font.render(f"{minutes:02}:{seconds:02}:{milliseconds:03}", True, (0, 0, 0))
