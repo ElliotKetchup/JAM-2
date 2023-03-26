@@ -104,14 +104,14 @@ class Player(pg.sprite.Sprite):
         if not self.is_jumping:
             if int(self.count) > len(self.dico_anim)-1:
                 self.count = 0
-            
+
             self.surf = self.dico_anim[int(self.count)]
             self.count+= self.animation_speed
 
         if self.is_jumping:
             self.rect.y += self.jump_speed - (self.air_time * 2)
             self.air_time -= 1
-            
+
             if self.air_time <= 0:
                 self.is_jumping = False
                 self.rect.topleft = (self.rect.x, self.y)
@@ -119,11 +119,73 @@ class Player(pg.sprite.Sprite):
 
     def draw(self):
         screen.blit(self.surf, (self.rect.x, self.rect.y))
-    
+
     def jump(self):
         if not self.is_jumping:
             self.is_jumping = True
             self.air_time = 20  # adjust as needed
+
+def end_game(screen, running, elapsed_time):
+    font_button = pg.font.Font("font/Paralis.ttf", 64)
+    font_text = pg.font.Font(None, 50)
+    clock = pg.time.Clock()
+
+    # set up the buttons
+
+    restart_button_rect = pg.Rect((WIDTH / 2) - 500 / 2, 600, 500, 150)
+    restart_button_text = font_button.render("Restart", True, (255, 255, 255))
+    restart_button_text_rect = restart_button_text.get_rect(center=restart_button_rect.center)
+    quit_button_rect = pg.Rect((WIDTH / 2) - 500 / 2, 800, 500, 150)
+    quit_button_text = font_button.render("Quit", True, (255, 255, 255))
+    quit_button_text_rect = quit_button_text.get_rect(center=quit_button_rect.center)
+    active_button = restart_button_rect
+
+    # set up the text
+
+    text = font_text.render("You have skied for : {:02d}:{:02d}:{:03d}".format(elapsed_time // 60000, (elapsed_time // 1000) % 60, elapsed_time % 1000), True, (255, 255, 255))
+    text_rect = text.get_rect(center=(WIDTH/2, 300))
+
+    while running:
+        clock.tick(60)
+        for event in pg.event.get():
+            if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
+                running = False
+                pg.quit()
+                quit()
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_UP:
+                    active_button = restart_button_rect
+                elif event.key == pg.K_DOWN:
+                    active_button = quit_button_rect
+                elif event.key == pg.K_RETURN:
+                    if active_button == restart_button_rect:
+                        running = False
+                        main_game(screen, True)
+                    elif active_button == quit_button_rect:
+                        running = False
+                        pg.quit()
+                        quit()
+
+        # Draw the title
+
+        pg.draw.rect(screen, (0, 0, 0), text_rect)
+        screen.blit(text, text_rect)
+
+        # Draw the buttons
+
+        if active_button == restart_button_rect:
+            pg.draw.rect(screen, (128, 128, 128), restart_button_rect)
+            screen.blit(restart_button_text, restart_button_text_rect)
+        else:
+            pg.draw.rect(screen, (0, 0, 0), restart_button_rect)
+            screen.blit(restart_button_text, restart_button_text_rect)
+        if active_button == quit_button_rect:
+            pg.draw.rect(screen, (128, 128, 128), quit_button_rect)
+            screen.blit(quit_button_text, quit_button_text_rect)
+        else:
+            pg.draw.rect(screen, (0, 0, 0), quit_button_rect)
+            screen.blit(quit_button_text, quit_button_text_rect)
+        pg.display.update()
 
 def main_menu(screen, running):
     clock = pg.time.Clock()
@@ -206,7 +268,7 @@ def main_game(screen, running):
     moutain_sprite2 = Foreground(moutain2, 50)
     foreground_group.add(moutain_sprite)
     foreground_group.add(moutain_sprite2)
-    
+
     ramp_group = pg.sprite.Group()
     ramp_image = SpriteSheet('ressources/Untitled.png').image_at((0, 0, 2698, 587))
     new_ramp0 = Ramp(-200, -200, ramp_image)
@@ -217,7 +279,7 @@ def main_game(screen, running):
     arbre_image = pg.transform.scale(arbre_image, (17*3, 29*3))
     arbre_enfer_image = SpriteSheet('ressources/arbre_enfer.png').image_at((0, 0, 17, 29))
     arbre_enfer_image = pg.transform.scale(arbre_enfer_image, (17*5, 29*5))
-    
+
     skier_image = SpriteSheet("ressources/reimusheet.png")
     skier0 = pg.transform.scale(skier_image.image_at((3, 0, 22, 23)), (22*5, 23*5))
     skier1 = pg.transform.scale(skier_image.image_at((30, 0, 22, 23)), (22*5, 23*5))
@@ -246,6 +308,8 @@ def main_game(screen, running):
                 quit()
             elif event.type == pg.MOUSEBUTTONDOWN:
                 print(pg.mouse.get_pos())
+            elif event.type == pg.KEYDOWN:
+                end_game(screen, running, elapsed_time)
 
         if keys[pg.K_SPACE]:
             skier_top.jump()
@@ -286,7 +350,7 @@ def main_game(screen, running):
                 sprite.delete()
             sprite.draw()
             sprite.move(SCROLL_SPEED, SCROLL_SPEED)
-        
+
         # Draw and move the player
         for sprite in skier_group:
             sprite.draw()
@@ -294,9 +358,10 @@ def main_game(screen, running):
 
         # calculate elapsed time
         milliseconds = pg.time.get_ticks() - ticks
+        elapsed_time = milliseconds
         seconds = milliseconds // 1000
         minutes = seconds // 60
-        milliseconds = milliseconds % 1000
+        milliseconds = elapsed_time % 1000
         seconds = seconds % 60
 
         # draw chronometer
