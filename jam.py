@@ -31,7 +31,7 @@ class Obstacle(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (x,y)
         self.image = pg.transform.rotate(self.image, angle)
-        
+
 
     def draw(self):
         screen.blit(self.image, (self.rect.x, self.rect.y))
@@ -49,14 +49,14 @@ class Ramp(pg.sprite.Sprite):
 
     def draw(self):
         screen.blit(self.image, (self.rect.x, self.rect.y))
-    
+
     def rotate(self, angle):
         self.image = pg.transform.rotate(self.image, angle)
 
     def move(self, x, y):
         self.rect.x += x
         self.rect.y += y
-    
+
     def delete(self):
         self.kill()
 
@@ -131,6 +131,7 @@ def main_game(screen, running):
     new_ramp0.rotate(-45)
     ramp_group.add(new_ramp0)
     ticks = pg.time.get_ticks()
+    font = pg.font.Font(None, 54)
 
     while running:
         clock.tick(60)
@@ -151,6 +152,18 @@ def main_game(screen, running):
                 ramp_group.add(new_ramp0)
             sprite.draw()
             sprite.move(-1, -1)
+
+        # calculate elapsed time
+        milliseconds = pg.time.get_ticks() - ticks
+        seconds = int(milliseconds / 1000)
+        minutes = int(seconds / 60)
+        seconds %= 60
+
+        # draw chronometer
+        chronometer = font.render(f"{minutes:02}:{seconds:02}", True, (0, 0, 0))
+        screen.blit(chronometer, (WIDTH - 100, 0))
+
+        # update screen
         pg.display.update()
 
 pg.init()
