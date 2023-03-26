@@ -62,21 +62,22 @@ class Ramp(pg.sprite.Sprite):
 
 def main_menu(screen, running):
     clock = pg.time.Clock()
-    font = pg.font.Font("font/Cube.ttf", 54)
+    font = pg.font.Font("font/Paralis.ttf", 64)
+    font_title = pg.font.Font("font/Paralis.ttf", 90)
 
     # Set up the buttons
 
-    start_button_rect = pg.Rect(100, 600, 650, 150)
+    start_button_rect = pg.Rect((WIDTH / 2) - 500 / 2, 600, 500, 150)
     start_button_text = font.render("Start", True, (255, 255, 255))
     start_button_text_rect = start_button_text.get_rect(center=start_button_rect.center)
-    quit_button_rect = pg.Rect(100, 800, 575, 150)
+    quit_button_rect = pg.Rect((WIDTH / 2) - 500 / 2, 800, 500, 150)
     quit_button_text = font.render("Quit", True, (255, 255, 255))
     quit_button_text_rect = quit_button_text.get_rect(center=quit_button_rect.center)
     active_button = start_button_rect
 
     # Set Title
 
-    title_text = font.render("Parraski", True, (255, 255, 255))
+    title_text = font_title.render("Parraski", True, (255, 255, 255))
     title_text_rect = title_text.get_rect(center=(WIDTH/2, 300))
 
     while running:
@@ -155,13 +156,13 @@ def main_game(screen, running):
 
         # calculate elapsed time
         milliseconds = pg.time.get_ticks() - ticks
-        seconds = int(milliseconds / 1000)
+        seconds = int(milliseconds / 1000) % 60
         minutes = int(seconds / 60)
-        seconds %= 60
+        milliseconds = milliseconds % 1000
 
         # draw chronometer
-        chronometer = font.render(f"{minutes:02}:{seconds:02}", True, (0, 0, 0))
-        screen.blit(chronometer, (WIDTH - 100, 0))
+        chronometer = font.render(f"{minutes:02}:{seconds:02}:{milliseconds:03}", True, (0, 0, 0))
+        screen.blit(chronometer, (WIDTH - 190, 15))
 
         # update screen
         pg.display.update()
