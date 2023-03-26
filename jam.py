@@ -57,7 +57,7 @@ class Ramp(pg.sprite.Sprite):
         self.rect.x += x
         self.rect.y += y
     
-    def delete(self): ## permet de supprimer un monstre 
+    def delete(self):
         self.kill()
 
 def main_menu(screen, running):
