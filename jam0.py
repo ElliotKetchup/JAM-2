@@ -5,7 +5,6 @@ from random import *
 
 WIDTH = 1920
 HEIGHT = 1080
-SCROLL_SPEED = -8
 
 class Foreground(pg.sprite.Sprite):
     def __init__(self, image, vitesse_scroll):
@@ -62,7 +61,7 @@ class Obstacle(pg.sprite.Sprite):
     def move(self, x, y):
         self.rect.x += x
         self.rect.y += y
-
+    
     def delete(self):
         self.kill()
 
@@ -89,41 +88,25 @@ class Ramp(pg.sprite.Sprite):
 class Player(pg.sprite.Sprite):
     def __init__(self, x, y, dico_anim,):
         super(Player, self).__init__()
-        self.x = x
-        self.y = y
         self.dico_anim = dico_anim
         self.surf = self.dico_anim[0]
         self.rect = self.surf.get_rect(topleft = (x,y))
+        #self.rect.topleft = (x,y)
         self.count = 0
         self.animation_speed = 0.1
-        self.is_jumping = False
-        self.jump_speed = 10  # adjust as needed
-        self.air_time = 0
 
     def update(self): # update the animation
-        if not self.is_jumping:
-            if int(self.count) > len(self.dico_anim)-1:
-                self.count = 0
-            
-            self.surf = self.dico_anim[int(self.count)]
-            self.count+= self.animation_speed
-
-        if self.is_jumping:
-            self.rect.y += self.jump_speed - (self.air_time * 2)
-            self.air_time -= 1
-            
-            if self.air_time <= 0:
-                self.is_jumping = False
-                self.rect.topleft = (self.rect.x, self.y)
-
+        if int(self.count) > len(self.dico_anim)-1:
+            self.count = 0
+        
+        self.surf = self.dico_anim[int(self.count)]
+        self.count+= self.animation_speed
 
     def draw(self):
         screen.blit(self.surf, (self.rect.x, self.rect.y))
     
     def jump(self):
-        if not self.is_jumping:
-            self.is_jumping = True
-            self.air_time = 20  # adjust as needed
+        self.rect.y -= 10
 
 def main_menu(screen, running):
     clock = pg.time.Clock()
@@ -214,7 +197,7 @@ def main_game(screen, running):
     ramp_group.add(new_ramp0)
     obstacle_group = pg.sprite.Group()
     arbre_image = SpriteSheet('ressources/arbre.png').image_at((0, 0, 17, 29))
-    arbre_image = pg.transform.scale(arbre_image, (17*3, 29*3))
+    arbre_image = pg.transform.scale(arbre_image, (17*4, 29*4))
     arbre_enfer_image = SpriteSheet('ressources/arbre_enfer.png').image_at((0, 0, 17, 29))
     arbre_enfer_image = pg.transform.scale(arbre_enfer_image, (17*5, 29*5))
     
@@ -237,7 +220,6 @@ def main_game(screen, running):
 
     while running:
         clock.tick(60)
-        keys = pg.key.get_pressed()
 
         for event in pg.event.get():
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
@@ -246,10 +228,6 @@ def main_game(screen, running):
                 quit()
             elif event.type == pg.MOUSEBUTTONDOWN:
                 print(pg.mouse.get_pos())
-
-        if keys[pg.K_SPACE]:
-            skier_top.jump()
-            print("jump")
 
         # move and draw the background
         time = clock.get_time()
@@ -271,7 +249,7 @@ def main_game(screen, running):
                 new_ramp0.rotate(-45)
                 ramp_group.add(new_ramp0)
             sprite.draw()
-            sprite.move(SCROLL_SPEED, SCROLL_SPEED)
+            sprite.move(-5, -5)
 
         # Create the obstacles
         if randrange(0, 100) == 0:
@@ -285,7 +263,7 @@ def main_game(screen, running):
             if sprite.rect.x < - 541 and sprite.rect.y < - 587:
                 sprite.delete()
             sprite.draw()
-            sprite.move(SCROLL_SPEED, SCROLL_SPEED)
+            sprite.move(-5, -5)
         
         # Draw and move the player
         for sprite in skier_group:
@@ -294,10 +272,9 @@ def main_game(screen, running):
 
         # calculate elapsed time
         milliseconds = pg.time.get_ticks() - ticks
-        seconds = milliseconds // 1000
-        minutes = seconds // 60
+        seconds = int(milliseconds / 1000) % 60
+        minutes = int(seconds / 60)
         milliseconds = milliseconds % 1000
-        seconds = seconds % 60
 
         # draw chronometer
         chronometer = font.render(f"{minutes:02}:{seconds:02}:{milliseconds:03}", True, (0, 0, 0))
