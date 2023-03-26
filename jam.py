@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import pygame as pg
 from math import *
+from random import *
 
 WIDTH = 1920
 HEIGHT = 1080
@@ -48,20 +49,21 @@ class Image():
         screen.blit(self.image, (self.rect.x, self.rect.y))
 
 class Obstacle(pg.sprite.Sprite):
-    def __init__(self, x, y, image, angle):
+    def __init__(self, x, y, surf, spawn_location):
         super(Obstacle, self).__init__()
-        self.image = image
-        self.rect = self.image.get_rect()
+        self.surf = surf
+        self.rect = self.surf.get_rect(topleft = (spawn_location))
         self.rect.topleft = (x,y)
-        self.image = pg.transform.rotate(self.image, angle)
-
 
     def draw(self):
-        screen.blit(self.image, (self.rect.x, self.rect.y))
+        screen.blit(self.surf, (self.rect.x, self.rect.y))
 
     def move(self, x, y):
         self.rect.x += x
         self.rect.y += y
+    
+    def delete(self):
+        self.kill()
 
 class Ramp(pg.sprite.Sprite):
     def __init__(self, x, y, image):
@@ -168,22 +170,16 @@ def main_game(screen, running):
     new_ramp0 = Ramp(-200, -200, ramp_image)
     new_ramp0.rotate(-45)
     ramp_group.add(new_ramp0)
+    obstacle_group = pg.sprite.Group()
+    arbre_image = SpriteSheet('ressources/arbre.png').image_at((0, 0, 17, 29))
+    arbre_image = pg.transform.scale(arbre_image, (17*4, 29*4))
+    arbre_enfer_image = SpriteSheet('ressources/arbre_enfer.png').image_at((0, 0, 17, 29))
+    arbre_enfer_image = pg.transform.scale(arbre_enfer_image, (17*5, 29*5))
     ticks = pg.time.get_ticks()
     font = pg.font.Font(None, 54)
 
     while running:
         clock.tick(60)
-
-
-        timea = timea - (clock.get_time() * 1.5)
-        timeb = timeb - (clock.get_time() / 2)
-        timec = timec - (clock.get_time() / 3)
-        back.draw()
-        foreground_group.draw(screen)
-        forest_sprite.draw(screen)
-        forest_sprite.move(timea, -500)
-        moutain_sprite2.move((timec) , -500)
-        moutain_sprite.move((timeb), -500)
 
         for event in pg.event.get():
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
@@ -193,15 +189,41 @@ def main_game(screen, running):
             elif event.type == pg.MOUSEBUTTONDOWN:
                 print(pg.mouse.get_pos())
 
+        # move and draw the background
+        time = clock.get_time()
+        timea = timea - (time * 1.5)
+        timeb = timeb - (time / 2)
+        timec = timec - (time / 3)
+        back.draw()
+        foreground_group.draw(screen)
+        forest_sprite.draw(screen)
+        forest_sprite.move(timea, -500)
+        moutain_sprite2.move((timec) , -500)
+        moutain_sprite.move((timeb), -500)
 
+        # Create, draw, move and delete the ramps
         for sprite in ramp_group:
             if sprite.rect.x < - 541 and sprite.rect.y < - 587:
                 sprite.delete()
-                new_ramp0 = Ramp(-200, -200, ramp_image)
+                new_ramp0 = Ramp(-215, -215, ramp_image)
                 new_ramp0.rotate(-45)
                 ramp_group.add(new_ramp0)
             sprite.draw()
-            sprite.move(-1, -1)
+            sprite.move(-5, -5)
+
+        # Create the obstacles
+        if randrange(0, 100) == 0:
+            new_obstacle = Obstacle(1400, 1050, arbre_image, (100, 100))
+            obstacle_group.add(new_obstacle)
+        if randrange(0, 100) == 0:
+            new_obstacle = Obstacle(800, 1050, arbre_enfer_image, (100, 100))
+            obstacle_group.add(new_obstacle)
+        # Draw and move the obstacles
+        for sprite in obstacle_group:
+            if sprite.rect.x < - 541 and sprite.rect.y < - 587:
+                sprite.delete()
+            sprite.draw()
+            sprite.move(-5, -5)
 
         # calculate elapsed time
         milliseconds = pg.time.get_ticks() - ticks
@@ -212,6 +234,7 @@ def main_game(screen, running):
         # draw chronometer
         chronometer = font.render(f"{minutes:02}:{seconds:02}:{milliseconds:03}", True, (0, 0, 0))
         screen.blit(chronometer, (WIDTH - 190, 15))
+
 
         if timea  <= -1500:
             timea = 0
