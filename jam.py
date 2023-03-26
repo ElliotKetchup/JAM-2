@@ -24,6 +24,42 @@ class Image():
     def draw(self):
         screen.blit(self.image, (self.rect.x, self.rect.y))
 
+class Obstacle(pg.sprite.Sprite):
+    def __init__(self, x, y, image, angle):
+        super(Obstacle, self).__init__()
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x,y)
+        self.image = pg.transform.rotate(self.image, angle)
+        
+
+    def draw(self):
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+
+    def move(self, x, y):
+        self.rect.x += x
+        self.rect.y += y
+
+class Ramp(pg.sprite.Sprite):
+    def __init__(self, x, y, image):
+        super(Ramp, self).__init__()
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x,y)
+
+    def draw(self):
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+    
+    def rotate(self, angle):
+        self.image = pg.transform.rotate(self.image, angle)
+
+    def move(self, x, y):
+        self.rect.x += x
+        self.rect.y += y
+    
+    def delete(self): ## permet de supprimer un monstre 
+        self.kill()
+
 def main_menu(screen, running):
     clock = pg.time.Clock()
     font = pg.font.Font("font/Cube.ttf", 68)
@@ -79,9 +115,12 @@ def main_menu(screen, running):
 
 def main_game(screen, running):
     clock = pg.time.Clock()
-    ground_group = pg.sprite.Group()
-    ground_image = SpriteSheet('ressources/ramp.png').image_at((0, 0, 541, 895))
-    ground = Image(0, 0, ground_image)
+    ramp_group = pg.sprite.Group()
+    ramp_image = SpriteSheet('ressources/Untitled.png').image_at((0, 0, 2698, 587))
+    new_ramp0 = Ramp(-200, -200, ramp_image)
+    new_ramp0.rotate(-45)
+    ramp_group.add(new_ramp0)
+    ticks = pg.time.get_ticks()
 
     while running:
         clock.tick(60)
@@ -90,15 +129,23 @@ def main_game(screen, running):
                 running = False
                 pg.quit()
                 quit()
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                print(pg.mouse.get_pos())
 
         screen.fill((255, 255, 255))
+        for sprite in ramp_group:
+            if sprite.rect.x < - 541 and sprite.rect.y < - 587:
+                sprite.delete()
+                new_ramp0 = Ramp(-200, -200, ramp_image)
+                new_ramp0.rotate(-45)
+                ramp_group.add(new_ramp0)
+            sprite.draw()
+            sprite.move(-1, -1)
         pg.display.update()
-
-        ground.draw()
 
 pg.init()
 
-screen = pg.display.set_mode([WIDTH, HEIGHT])
+screen = pg.display.set_mode([WIDTH, HEIGHT], pg.RESIZABLE)
 running = True
 pg.display.set_caption('Parraski')
 main_menu(screen, running)
