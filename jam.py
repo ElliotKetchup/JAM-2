@@ -90,6 +90,21 @@ def main_menu(screen, running):
 
     # Set up the buttons
 
+    timea = 0
+    timeb = 0
+    timec = 2000
+    clock = pg.time.Clock()
+    back = Image(0, 0, pg.image.load('./ressources/background.png'))
+    back.image = pg.transform.scale(back.image, (WIDTH, HEIGHT))
+    forest1 = Image(0, -500, pg.image.load('./ressources/huge_foreste.png'))
+    moutain = Image(0, -500, pg.image.load('./ressources/moutain_pink.png'))
+    moutain2 = Image(1980, -500, pg.image.load('./ressources/moutain_pink.png'))
+    foreground_group = pg.sprite.Group()
+    forest_sprite = Foreground(forest1, 50)
+    moutain_sprite = Foreground(moutain, 50)
+    moutain_sprite2 = Foreground(moutain2, 50)
+    foreground_group.add(moutain_sprite)
+    foreground_group.add(moutain_sprite2)
     start_button_rect = pg.Rect((WIDTH / 2) - 500 / 2, 600, 500, 150)
     start_button_text = font.render("Start", True, (255, 255, 255))
     start_button_text_rect = start_button_text.get_rect(center=start_button_rect.center)
@@ -131,6 +146,17 @@ def main_menu(screen, running):
         pg.draw.rect(screen, (0, 0, 0), title_text_rect)
         screen.blit(title_text, title_text_rect)
 
+        #draw background
+        timea = timea - (clock.get_time() * 1.5)
+        timeb = timeb - (clock.get_time() / 2)
+        timec = timec - (clock.get_time() / 3)
+        back.draw()
+        foreground_group.draw(screen)
+        forest_sprite.draw(screen)
+        forest_sprite.move(timea, -500)
+        moutain_sprite2.move((timec) , -500)
+        moutain_sprite.move((timeb), -500)
+
         # Draw the buttons
 
         if active_button == start_button_rect:
@@ -145,6 +171,13 @@ def main_menu(screen, running):
         else:
             pg.draw.rect(screen, (0, 0, 0), quit_button_rect)
             screen.blit(quit_button_text, quit_button_text_rect)
+
+        if timea  <= -1500:
+            timea = 0
+        if timeb  <= -3700:
+            timeb = 700
+        if timec  <= -3700:
+            timec = 1500
         pg.display.update()
 
 def main_game(screen, running):
