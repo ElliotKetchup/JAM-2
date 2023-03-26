@@ -85,6 +85,29 @@ class Ramp(pg.sprite.Sprite):
     def delete(self):
         self.kill()
 
+class Player(pg.sprite.Sprite):
+    def __init__(self, x, y, dico_anim,):
+        super(Player, self).__init__()
+        self.dico_anim = dico_anim
+        self.surf = self.dico_anim[0]
+        self.rect = self.surf.get_rect(topleft = (x,y))
+        #self.rect.topleft = (x,y)
+        self.count = 0
+        self.animation_speed = 0.1
+
+    def update(self): # update the animation
+        if int(self.count) > len(self.dico_anim)-1:
+            self.count = 0
+        
+        self.surf = self.dico_anim[int(self.count)]
+        self.count+= self.animation_speed
+
+    def draw(self):
+        screen.blit(self.surf, (self.rect.x, self.rect.y))
+    
+    def jump(self):
+        self.rect.y -= 10
+
 def main_menu(screen, running):
     clock = pg.time.Clock()
     font = pg.font.Font("font/Paralis.ttf", 64)
@@ -153,6 +176,7 @@ def main_game(screen, running):
     timea = 0
     timeb = 0
     timec = 2000
+
     clock = pg.time.Clock()
     back = Image(0, 0, pg.image.load('./ressources/background.png'))
     back.image = pg.transform.scale(back.image, (WIDTH, HEIGHT))
@@ -165,6 +189,7 @@ def main_game(screen, running):
     moutain_sprite2 = Foreground(moutain2, 50)
     foreground_group.add(moutain_sprite)
     foreground_group.add(moutain_sprite2)
+    
     ramp_group = pg.sprite.Group()
     ramp_image = SpriteSheet('ressources/Untitled.png').image_at((0, 0, 2698, 587))
     new_ramp0 = Ramp(-200, -200, ramp_image)
@@ -175,6 +200,21 @@ def main_game(screen, running):
     arbre_image = pg.transform.scale(arbre_image, (17*4, 29*4))
     arbre_enfer_image = SpriteSheet('ressources/arbre_enfer.png').image_at((0, 0, 17, 29))
     arbre_enfer_image = pg.transform.scale(arbre_enfer_image, (17*5, 29*5))
+    
+    skier_image = SpriteSheet("ressources/reimusheet.png")
+    skier0 = pg.transform.scale(skier_image.image_at((3, 0, 22, 23)), (22*5, 23*5))
+    skier1 = pg.transform.scale(skier_image.image_at((30, 0, 22, 23)), (22*5, 23*5))
+    skier2 = pg.transform.scale(skier_image.image_at((56, 0, 22, 23)), (22*5, 23*5))
+    skier3 = pg.transform.scale(skier_image.image_at((84, 0, 22, 23)), (22*5, 23*5))
+    skier4 = pg.transform.scale(skier_image.image_at((110, 0, 22, 23)), (22*5, 23*5))
+    skier5 = pg.transform.scale(skier_image.image_at((136, 0, 22, 23)), (22*5, 23*5))
+    dico_skier = {0: skier0, 1: skier1, 2: skier2, 3: skier3, 4: skier4, 5: skier5}
+    skier_top = Player(590, 220, dico_skier)
+    skier_bottom = Player(150, 460, dico_skier)
+    skier_group = pg.sprite.Group()
+    skier_group.add(skier_top)
+
+
     ticks = pg.time.get_ticks()
     font = pg.font.Font(None, 54)
 
@@ -191,7 +231,7 @@ def main_game(screen, running):
 
         # move and draw the background
         time = clock.get_time()
-        timea = timea - (time * 1.5)
+        timea = timea - (time * 1)
         timeb = timeb - (time / 2)
         timec = timec - (time / 3)
         back.draw()
@@ -213,10 +253,10 @@ def main_game(screen, running):
 
         # Create the obstacles
         if randrange(0, 100) == 0:
-            new_obstacle = Obstacle(1400, 1050, arbre_image, (100, 100))
+            new_obstacle = Obstacle(1400, 1050, arbre_image, (16, 28))
             obstacle_group.add(new_obstacle)
         if randrange(0, 100) == 0:
-            new_obstacle = Obstacle(800, 1050, arbre_enfer_image, (100, 100))
+            new_obstacle = Obstacle(800, 1050, arbre_enfer_image, (12, 19))
             obstacle_group.add(new_obstacle)
         # Draw and move the obstacles
         for sprite in obstacle_group:
@@ -224,6 +264,11 @@ def main_game(screen, running):
                 sprite.delete()
             sprite.draw()
             sprite.move(-5, -5)
+        
+        # Draw and move the player
+        for sprite in skier_group:
+            sprite.draw()
+            sprite.update()
 
         # calculate elapsed time
         milliseconds = pg.time.get_ticks() - ticks
