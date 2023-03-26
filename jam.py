@@ -62,17 +62,22 @@ class Ramp(pg.sprite.Sprite):
 
 def main_menu(screen, running):
     clock = pg.time.Clock()
-    font = pg.font.Font("font/Cube.ttf", 68)
+    font = pg.font.Font("font/Cube.ttf", 54)
 
     # Set up the buttons
 
-    start_button_rect = pg.Rect(100, 600, 815, 200)
+    start_button_rect = pg.Rect(100, 600, 650, 150)
     start_button_text = font.render("Start", True, (255, 255, 255))
     start_button_text_rect = start_button_text.get_rect(center=start_button_rect.center)
-    quit_button_rect = pg.Rect(100, 840, 665, 200)
+    quit_button_rect = pg.Rect(100, 800, 575, 150)
     quit_button_text = font.render("Quit", True, (255, 255, 255))
     quit_button_text_rect = quit_button_text.get_rect(center=quit_button_rect.center)
     active_button = start_button_rect
+
+    # Set Title
+
+    title_text = font.render("Parraski", True, (255, 255, 255))
+    title_text_rect = title_text.get_rect(center=(WIDTH/2, 300))
 
     while running:
         clock.tick(60)
@@ -96,6 +101,11 @@ def main_menu(screen, running):
                         quit()
 
         screen.fill((0, 0, 0))
+
+        # Draw the title
+
+        pg.draw.rect(screen, (0, 0, 0), title_text_rect)
+        screen.blit(title_text, title_text_rect)
 
         # Draw the buttons
 
