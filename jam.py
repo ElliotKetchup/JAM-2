@@ -97,9 +97,9 @@ class Player(pg.sprite.Sprite):
         self.count = 0
         self.animation_speed = 0.1
         self.is_jumping = False
-        self.jump_speed = 10  # adjust as needed
+        self.jump_speed = 2  # adjust as needed
         self.air_time = 0
-        self.begin_jump = 20 # adjust as needed
+        self.begin_jump = 14 # adjust as needed
 
     def update(self): # update the animation
         if not self.is_jumping:
@@ -377,10 +377,11 @@ def main_game(screen, running):
             sprite.move(SCROLL_SPEED, SCROLL_SPEED)
 
         # Create the obstacles
-        if randrange(0, 100) == 0:
+        if randrange(0, 50) == 0:
             new_obstacle = Obstacle(1400, 1050, arbre_image, (16, 28))
             obstacle_group.add(new_obstacle)
-        if randrange(0, 100) == 0:
+            print("obstacle")
+        if randrange(0, 50) == 0:
             new_obstacle = Obstacle(800, 1050, arbre_enfer_image, (12, 19))
             obstacle_group.add(new_obstacle)
         # Draw and move the obstacles
@@ -395,6 +396,8 @@ def main_game(screen, running):
         for sprite in skier_group:
             sprite.draw()
             sprite.update()
+            if len(pg.sprite.spritecollide(sprite, obstacle_group, False)) > 0:
+                end_game(screen, running, elapsed_time)
 
         # calculate elapsed time
         milliseconds = pg.time.get_ticks() - ticks
