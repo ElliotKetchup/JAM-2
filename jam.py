@@ -341,13 +341,11 @@ def main_game(screen, running):
                 quit()
             elif event.type == pg.MOUSEBUTTONDOWN:
                 print(pg.mouse.get_pos())
-            elif event.type == pg.KEYDOWN:
+            elif (event.type == pg.KEYDOWN and event.key == pg.K_TAB):
                 end_game(screen, running, elapsed_time)
 
         if keys[pg.K_SPACE]:
             skier_top.jump()
-            print("jump")
-
         # move and draw the background
         time = clock.get_time()
         timea = timea - (time * 1)
