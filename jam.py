@@ -99,6 +99,7 @@ class Player(pg.sprite.Sprite):
         self.is_jumping = False
         self.jump_speed = 10  # adjust as needed
         self.air_time = 0
+        self.begin_jump = 20 # adjust as needed
 
     def update(self): # update the animation
         if not self.is_jumping:
@@ -109,8 +110,15 @@ class Player(pg.sprite.Sprite):
             self.count+= self.animation_speed
 
         if self.is_jumping:
-            self.rect.y += self.jump_speed - (self.air_time * 2)
-            self.air_time -= 1
+
+            if (self.air_time > self.begin_jump / 2):
+                self.rect.y += self.jump_speed - (self.air_time * 2)
+                self.air_time -= 1
+
+            else:
+                self.rect.y -= self.jump_speed - ((self.air_time + self.begin_jump / 2) * 2)
+                self.air_time -= 1
+
 
             if self.air_time <= 0:
                 self.is_jumping = False
@@ -123,7 +131,7 @@ class Player(pg.sprite.Sprite):
     def jump(self):
         if not self.is_jumping:
             self.is_jumping = True
-            self.air_time = 20  # adjust as needed
+            self.air_time = self.begin_jump  # adjust as needed
 
 def end_game(screen, running, elapsed_time):
     font_button = pg.font.Font("font/Paralis.ttf", 64)
@@ -379,6 +387,7 @@ def main_game(screen, running):
         for sprite in obstacle_group:
             if sprite.rect.x < - 541 and sprite.rect.y < - 587:
                 sprite.delete()
+
             sprite.draw()
             sprite.move(SCROLL_SPEED, SCROLL_SPEED)
 
