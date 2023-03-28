@@ -100,6 +100,11 @@ class Player(pg.sprite.Sprite):
         self.jump_speed =1  # adjust as needed
         self.air_time = 0
         self.begin_jump = 20 # adjust as needed
+        self.is_top = True
+
+    def rotate(self, angle):
+        for i in range(0, len(self.dico_anim)):
+            self.dico_anim[i] = pg.transform.rotate(self.dico_anim[i], angle)
 
     def update(self): # update the animation
         if not self.is_jumping:
@@ -109,7 +114,7 @@ class Player(pg.sprite.Sprite):
             self.surf = self.dico_anim[int(self.count)]
             self.count+= self.animation_speed
 
-        if self.is_jumping:
+        if self.is_jumping and  self.is_top:
 
             if (self.air_time > self.begin_jump / 2):
                 self.rect.y += self.jump_speed - (self.air_time * 2)
@@ -117,6 +122,21 @@ class Player(pg.sprite.Sprite):
 
             else:
                 self.rect.y -= self.jump_speed - ((self.air_time + self.begin_jump / 2) * 2)
+                self.air_time -= 1
+
+
+            if self.air_time <= 0:
+                self.is_jumping = False
+                self.rect.topleft = (self.rect.x, self.y)
+
+        if self.is_jumping and not self.is_top:
+
+            if (self.air_time > self.begin_jump / 2):
+                self.rect.y -= self.jump_speed - (self.air_time * 2)
+                self.air_time -= 1
+
+            else:
+                self.rect.y += self.jump_speed - ((self.air_time + self.begin_jump / 2) * 2)
                 self.air_time -= 1
 
 
@@ -317,9 +337,9 @@ def main_game(screen, running):
     ramp_group.add(new_ramp0)
     obstacle_group = pg.sprite.Group()
     arbre_image = SpriteSheet('ressources/arbre.png').image_at((0, 0, 17, 29))
-    arbre_image = pg.transform.scale(arbre_image, (17*3, 29*3))
+    arbre_image = pg.transform.scale(arbre_image, (17*2, 29*2))
     arbre_enfer_image = SpriteSheet('ressources/arbre_enfer.png').image_at((0, 0, 17, 29))
-    arbre_enfer_image = pg.transform.scale(arbre_enfer_image, (17*5, 29*5))
+    arbre_enfer_image = pg.transform.scale(arbre_enfer_image, (17*3, 29*3))
 
     skier_image = SpriteSheet("ressources/reimusheet.png")
     skier0 = pg.transform.scale(skier_image.image_at((3, 0, 22, 23)), (22*5, 23*5))
@@ -333,6 +353,8 @@ def main_game(screen, running):
     skier_bottom = Player(150, 460, dico_skier)
     skier_group = pg.sprite.Group()
     skier_group.add(skier_top)
+    skier_bottom.is_top = False
+    skier_group.add(skier_bottom)
 
 
     ticks = pg.time.get_ticks()
@@ -354,6 +376,8 @@ def main_game(screen, running):
 
         if keys[pg.K_SPACE]:
             skier_top.jump()
+        if keys[pg.K_w]:
+            skier_bottom.jump()
         # move and draw the background
         time = clock.get_time()
         timea = timea - (time * 1)
