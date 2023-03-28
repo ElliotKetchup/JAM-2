@@ -5,7 +5,7 @@ from random import *
 
 WIDTH = 1920
 HEIGHT = 1080
-SCROLL_SPEED = -8
+SCROLL_SPEED = -15
 
 class Foreground(pg.sprite.Sprite):
     def __init__(self, image, vitesse_scroll):
@@ -97,9 +97,9 @@ class Player(pg.sprite.Sprite):
         self.count = 0
         self.animation_speed = 0.1
         self.is_jumping = False
-        self.jump_speed = 2  # adjust as needed
+        self.jump_speed =1  # adjust as needed
         self.air_time = 0
-        self.begin_jump = 14 # adjust as needed
+        self.begin_jump = 20 # adjust as needed
 
     def update(self): # update the animation
         if not self.is_jumping:
@@ -380,7 +380,6 @@ def main_game(screen, running):
         if randrange(0, 50) == 0:
             new_obstacle = Obstacle(1400, 1050, arbre_image, (16, 28))
             obstacle_group.add(new_obstacle)
-            print("obstacle")
         if randrange(0, 50) == 0:
             new_obstacle = Obstacle(800, 1050, arbre_enfer_image, (12, 19))
             obstacle_group.add(new_obstacle)
