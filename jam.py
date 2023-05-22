@@ -228,9 +228,9 @@ def main_menu(screen, running):
     clock = pg.time.Clock()
     back = Image(0, 0, pg.image.load('./ressources/background.png'))
     back.image = pg.transform.scale(back.image, (WIDTH, HEIGHT))
-    forest1 = Image(0, -500, pg.image.load('./ressources/huge_foreste.png'))
-    moutain = Image(0, -500, pg.image.load('./ressources/moutain_pink.png'))
-    moutain2 = Image(1980, -500, pg.image.load('./ressources/moutain_pink.png'))
+    forest1 = Image(0, 0, pg.image.load('./ressources/huge_foreste.png'))
+    moutain = Image(0, 0, pg.image.load('./ressources/moutain_pink.png'))
+    moutain2 = Image(1980, 0, pg.image.load('./ressources/moutain_pink.png'))
     foreground_group = pg.sprite.Group()
     forest_sprite = Foreground(forest1, 50)
     moutain_sprite = Foreground(moutain, 50)
@@ -247,7 +247,7 @@ def main_menu(screen, running):
 
     # Set Title
 
-    title_text = font_title.render("Parraski", True, (255, 255, 255))
+    title_text = font_title.render("MONK pist", True, (255, 255, 255))
     title_text_rect = title_text.get_rect(center=(WIDTH/2, 300))
 
     while running:
@@ -285,9 +285,9 @@ def main_menu(screen, running):
         back.draw()
         foreground_group.draw(screen)
         forest_sprite.draw(screen)
-        forest_sprite.move(timea, -500)
-        moutain_sprite2.move((timec) , -500)
-        moutain_sprite.move((timeb), -500)
+        forest_sprite.move(timea, 0)
+        moutain_sprite2.move((timec) , 0)
+        moutain_sprite.move((timeb), 0)
 
         # Draw the buttons
 
@@ -316,13 +316,15 @@ def main_game(screen, running):
     timea = 0
     timeb = 0
     timec = 2000
+    life = 2
+    hit = 0
 
     clock = pg.time.Clock()
     back = Image(0, 0, pg.image.load('./ressources/background.png'))
     back.image = pg.transform.scale(back.image, (WIDTH, HEIGHT))
-    forest1 = Image(0, -500, pg.image.load('./ressources/huge_foreste.png'))
-    moutain = Image(0, -500, pg.image.load('./ressources/moutain_pink.png'))
-    moutain2 = Image(1980, -500, pg.image.load('./ressources/moutain_pink.png'))
+    forest1 = Image(0, 0, pg.image.load('./ressources/huge_foreste.png'))
+    moutain = Image(0, 0, pg.image.load('./ressources/moutain_pink.png'))
+    moutain2 = Image(1980, 0, pg.image.load('./ressources/moutain_pink.png'))
     foreground_group = pg.sprite.Group()
     forest_sprite = Foreground(forest1, 50)
     moutain_sprite = Foreground(moutain, 50)
@@ -340,6 +342,12 @@ def main_game(screen, running):
     arbre_image = pg.transform.scale(arbre_image, (17*2, 29*2))
     arbre_enfer_image = SpriteSheet('ressources/arbre_enfer.png').image_at((0, 0, 17, 29))
     arbre_enfer_image = pg.transform.scale(arbre_enfer_image, (17*3, 29*3))
+
+    balance_image = SpriteSheet("ressources/balance.png")
+    balance0 = pg.transform.scale(balance_image.image_at((46, 5, 173, 204)), (173, 204))
+    balance1 = pg.transform.scale(balance_image.image_at((266, 2, 211, 226)), (211 , 226))
+    dico_balance = {0: balance0, 1: balance1}
+    balance = Player(50, 700, dico_balance)
 
     skier_image = SpriteSheet("ressources/reimusheet.png")
     skier0 = pg.transform.scale(skier_image.image_at((3, 0, 22, 23)), (22*5, 23*5))
@@ -364,6 +372,14 @@ def main_game(screen, running):
         clock.tick(60)
         keys = pg.key.get_pressed()
 
+        # calculate elapsed time
+        milliseconds = pg.time.get_ticks() - ticks
+        elapsed_time = milliseconds
+        seconds = milliseconds // 1000
+        minutes = seconds // 60
+        milliseconds = elapsed_time % 1000
+        seconds = seconds % 60
+
         for event in pg.event.get():
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                 running = False
@@ -386,9 +402,9 @@ def main_game(screen, running):
         back.draw()
         foreground_group.draw(screen)
         forest_sprite.draw(screen)
-        forest_sprite.move(timea, -500)
-        moutain_sprite2.move((timec) , -500)
-        moutain_sprite.move((timeb), -500)
+        forest_sprite.move(timea, 0)
+        moutain_sprite2.move((timec) , 0)
+        moutain_sprite.move((timeb), 0)
 
         # Create, draw, move and delete the ramps
         for sprite in ramp_group:
@@ -416,19 +432,28 @@ def main_game(screen, running):
             sprite.move(SCROLL_SPEED, SCROLL_SPEED)
 
         # Draw and move the player
+  
+        if hit != 0:
+            if seconds - hit > 5:
+                hit = 0
+
+
+        balance.draw()
+
+
         for sprite in skier_group:
             sprite.draw()
             sprite.update()
-            if len(pg.sprite.spritecollide(sprite, obstacle_group, False)) > 0:
-                end_game(screen, running, elapsed_time)
+            if len(pg.sprite.spritecollide(sprite, obstacle_group, False)) > 0 and hit == 0:
+                hit = seconds
+                life -= 1
+                if  (life == 1):
+                    balance.surf = balance.dico_anim[1]
 
-        # calculate elapsed time
-        milliseconds = pg.time.get_ticks() - ticks
-        elapsed_time = milliseconds
-        seconds = milliseconds // 1000
-        minutes = seconds // 60
-        milliseconds = elapsed_time % 1000
-        seconds = seconds % 60
+        if life == 0:
+            end_game(screen, running, elapsed_time)
+
+
 
         # draw chronometer
         chronometer = font.render(f"{minutes:02}:{seconds:02}:{milliseconds:03}", True, (0, 0, 0))
@@ -449,5 +474,5 @@ pg.init()
 
 screen = pg.display.set_mode([WIDTH, HEIGHT], pg.RESIZABLE)
 running = True
-pg.display.set_caption('Parraski')
+pg.display.set_caption('Monk pist')
 main_menu(screen, running)
